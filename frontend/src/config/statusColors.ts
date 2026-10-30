@@ -1,0 +1,92 @@
+/**
+ * Status color classification.
+ * Single source of truth for StatusChip color logic.
+ */
+
+export type StatusColorCategory = 'success' | 'error' | 'warning' | 'neutral';
+
+export const STATUS_COLOR_MAP: Record<string, StatusColorCategory> = {
+  // Success
+  active: 'success',
+  confirmed: 'success',
+  paid: 'success',
+  success: 'success',
+  completed: 'success',
+  passed: 'success',
+  resulted: 'success',
+  reviewed: 'success',
+  final: 'success',
+  approved: 'success',
+  'on track': 'success',
+  normal: 'success',
+  stable: 'success',
+  ready: 'success',
+  // Error
+  critical: 'error',
+  overdue: 'error',
+  cancelled: 'error',
+  denied: 'error',
+  failed: 'error',
+  stat: 'error',
+  suspended: 'error',
+  delayed: 'error',
+  high: 'error',
+  abnormal: 'error',
+  // Warning
+  pending: 'warning',
+  'in progress': 'warning',
+  warning: 'warning',
+  partial: 'warning',
+  'partially paid': 'warning',
+  processing: 'warning',
+  preliminary: 'warning',
+  planning: 'warning',
+  enrolling: 'warning',
+  'behind schedule': 'warning',
+  'pending refill': 'warning',
+  'pending auth': 'warning',
+  low: 'warning',
+  moderate: 'warning',
+  'on hold': 'warning',
+  observation: 'warning',
+  'pre-op': 'warning',
+  unread: 'warning',
+  urgent: 'error',
+  expired: 'error',
+  'renewal due': 'warning',
+  valid: 'success',
+  operational: 'success',
+  degraded: 'warning',
+  outage: 'error',
+  // Wellness - Success
+  'on target': 'success',
+  exceeded: 'success',
+  achieved: 'success',
+  rested: 'success',
+  energized: 'success',
+  great: 'success',
+  good: 'success',
+  // Wellness - Warning
+  behind: 'warning',
+  skipped: 'warning',
+  fatigued: 'warning',
+  stressed: 'warning',
+  okay: 'neutral',
+  // Wellness - Error
+  missed: 'error',
+  poor: 'error',
+  // Wellness - Neutral
+  'not started': 'neutral',
+  // Neutral
+  read: 'neutral',
+  inactive: 'neutral',
+  discharged: 'neutral',
+  routine: 'neutral',
+  ordered: 'neutral',
+  scheduled: 'neutral',
+  'not required': 'neutral',
+  analysis: 'neutral',
+  none: 'neutral',
+  waiting: 'neutral',
+  addendum: 'neutral',
+};

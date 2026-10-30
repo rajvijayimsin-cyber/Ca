@@ -1,0 +1,64 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: carenest-backend
+    ports:
+      - "8000:8000"
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: carenest-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      # The Vite dev-server PROXY reaches the backend over the Docker network
+      # (frontend container can resolve the service name 'backend'). The browser
+      # cannot — it runs on the host. So api.ts uses relative URLs (baseURL='')
+      # and the Vite proxy forwards /api/* to REACT_APP_API_URL.
+      # DO NOT set VITE_API_URL — api.ts reads it directly as the axios baseURL,
+      # which would bake 'http://backend:8000' into the browser bundle and fail
+      # DNS resolution (ERR_NAME_NOT_RESOLVED) on the host.
+      - REACT_APP_API_URL=http://backend:8000
+      - BROWSER=none
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  db:
+    image: postgres:15-alpine
+    container_name: carenest-db
+    environment:
+      POSTGRES_USER: ${DB_USER:-medai}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme}
+      POSTGRES_DB: ${DB_NAME:-medai}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-medai} -d ${DB_NAME:-medai}"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: carenest-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+volumes:
+  pgdata:

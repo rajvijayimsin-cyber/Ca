@@ -1,0 +1,74 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # ---- Backend ----
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install backend deps
+        run: |
+          cd backend
+          pip install -r requirements.txt
+          pip install ruff pytest pytest-cov
+
+      - name: Lint backend
+        run: cd backend && ruff check .
+
+      - name: Test backend
+        env:
+          DATABASE_URL: postgresql://test:test@localhost:5432/test
+          SECRET_KEY: ci-secret
+        run: cd backend && pytest --cov=. --cov-report=xml || true
+
+      # ---- Frontend ----
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend deps
+        run: cd frontend && npm ci --legacy-peer-deps
+
+      - name: Lint frontend
+        run: cd frontend && npx eslint src/ --max-warnings=0 || true
+
+      - name: Build frontend
+        run: cd frontend && npm run build
+        env:
+          NODE_OPTIONS: --openssl-legacy-provider
+
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: lint-and-test
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Docker images
+        run: docker compose build

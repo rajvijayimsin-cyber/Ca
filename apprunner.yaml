@@ -1,0 +1,14 @@
+version: 1.0
+runtime: docker
+build:
+  commands:
+    build:
+      - echo "Building combined Docker image..."
+run:
+  runtime-version: latest
+  network:
+    port: 8080
+    env: PORT
+  env:
+    - name: APP_ENV
+      value: "production"
